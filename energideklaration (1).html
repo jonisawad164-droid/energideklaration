@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Energidekl.">
+<meta name="theme-color" content="#1e4a7a">
+<title>Underlag – Energideklaration</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;color:#1a1a1a;padding-bottom:90px}
+.topbar{background:#1e4a7a;color:#fff;padding:14px 16px;position:sticky;top:0;z-index:100}
+.topbar h1{font-size:16px;font-weight:700;margin-bottom:2px}
+.topbar p{font-size:11px;color:#a8c8e0}
+.prog-bar{height:4px;background:rgba(255,255,255,0.2);margin-top:8px;border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:#4fc3a1;border-radius:2px;transition:width 0.3s}
+.prog-label{font-size:11px;color:#a8c8e0;margin-top:3px}
+.tabs{display:flex;overflow-x:auto;background:#163d66;gap:2px;padding:6px 8px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:7px 12px;font-size:12px;font-weight:600;color:#a8c8e0;border-radius:8px;cursor:pointer;white-space:nowrap;border:none;background:transparent;-webkit-tap-highlight-color:transparent}
+.tab.active{background:#fff;color:#1e4a7a}
+.page{display:none;padding:12px}
+.page.active{display:block}
+.card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.card-title{font-size:13px;font-weight:700;color:#1e4a7a;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px}
+.row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f0f0f0}
+.row:last-child{border-bottom:none}
+.row label{font-size:14px;color:#333;flex:1;line-height:1.4}
+.row input[type=text],.row input[type=number],.row input[type=date],.row textarea,.row select{padding:8px 10px;font-size:14px;border:1px solid #ddd;border-radius:8px;background:#f8f9fa;color:#1a1a1a;-webkit-appearance:none}
+.row input[type=text],.row input[type=number],.row input[type=date]{width:160px;text-align:right}
+.row select{width:180px}
+.row textarea{width:100%;margin-top:6px;resize:vertical;min-height:60px;font-family:inherit}
+.row-full{flex-direction:column;align-items:flex-start}
+.row-full label{margin-bottom:6px}
+input:focus,select:focus,textarea:focus{outline:2px solid #1e4a7a;background:#fff}
+.jnrow{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f0f0f0}
+.jnrow:last-child{border-bottom:none}
+.jnrow label{font-size:14px;color:#1a1a1a;flex:1;line-height:1.4}
+.jnbtns{display:flex;gap:6px;flex-shrink:0}
+.jnbtn{padding:7px 14px;font-size:13px;font-weight:600;border:1.5px solid #ddd;border-radius:8px;background:#fff;color:#555;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.jnbtn.ja{background:#d4edda;border-color:#28a745;color:#155724}
+.jnbtn.nej{background:#f8d7da;border-color:#dc3545;color:#721c24}
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f0f0f0}
+.check-item:last-child{border-bottom:none}
+.check-item input[type=checkbox]{width:22px;height:22px;flex-shrink:0;margin-top:1px;accent-color:#1e4a7a}
+.check-item label{font-size:14px;line-height:1.5;cursor:pointer;flex:1}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.check-grid-item{display:flex;align-items:center;gap:8px;padding:8px 6px;border-bottom:1px solid #f0f0f0}
+.check-grid-item:nth-last-child(-n+2){border-bottom:none}
+.check-grid-item input[type=checkbox]{width:20px;height:20px;flex-shrink:0;accent-color:#1e4a7a}
+.check-grid-item label{font-size:13px;line-height:1.4;cursor:pointer}
+.verk-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f0f0}
+.verk-row:last-child{border-bottom:none}
+.verk-row label{font-size:13px;color:#333;flex:1}
+.verk-row input{width:70px;padding:6px 8px;font-size:14px;text-align:center;border:1px solid #ddd;border-radius:8px;background:#f8f9fa}
+.verk-row .pct{font-size:13px;color:#888;min-width:20px}
+.sum-display{background:#1e4a7a;color:#fff;border-radius:10px;padding:10px 14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center}
+.sum-display .sl{font-size:13px;color:#a8c8e0}
+.sum-display .sn{font-size:20px;font-weight:700}
+.sum-display .sn.ok{color:#4fc3a1}
+.sum-display .sn.bad{color:#ff6b6b}
+.atg-table{width:100%;border-collapse:collapse;font-size:13px}
+.atg-table th{background:#e8f0f8;padding:8px 10px;text-align:left;border:1px solid #ddd;font-weight:700;color:#1e4a7a}
+.atg-table td{padding:6px 8px;border:1px solid #ddd;vertical-align:top}
+.atg-table input{width:100%;border:none;background:transparent;font-size:13px;font-family:inherit;padding:2px}
+.atg-table input:focus{outline:none;background:#f0f5ff}
+.add-row-btn{margin-top:8px;padding:8px 14px;font-size:13px;border:1.5px dashed #1e4a7a;border-radius:8px;background:transparent;color:#1e4a7a;cursor:pointer;width:100%;-webkit-tap-highlight-color:transparent}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e0e0e0;padding:10px 16px;display:flex;gap:8px;z-index:99}
+.stat{text-align:center;flex:1}
+.stat-n{font-size:18px;font-weight:700;color:#1e4a7a}
+.stat-l{font-size:10px;color:#888;margin-top:1px}
+.send-btn{width:calc(100% - 24px);margin:12px;padding:16px;background:#1e4a7a;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;display:block;-webkit-tap-highlight-color:transparent}
+.send-btn:active{background:#163d66}
+.note{font-size:12px;color:#888;font-style:italic;padding:4px 0 8px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Underlag – Energideklaration</h1>
+  <p>Bravida Sverige AB</p>
+  <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  <div class="prog-label" id="prog-label">Fyller i...</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPage('meta',this)">Info</button>
+  <button class="tab" onclick="showPage('areor',this)">Areor</button>
+  <button class="tab" onclick="showPage('energi',this)">Energi</button>
+  <button class="tab" onclick="showPage('verk',this)">Verksamhet</button>
+  <button class="tab" onclick="showPage('teknik',this)">Teknik</button>
+  <button class="tab" onclick="showPage('atgarder',this)">Åtgärder</button>
+</div>
+
+<!-- FLIK 1: INFO -->
+<div id="page-meta" class="page active">
+  <div class="card">
+    <div class="card-title">Projektinformation</div>
+    <div class="row"><label>Handläggare</label><input type="text" id="m_hand" oninput="upd()" placeholder="Namn"></div>
+    <div class="row"><label>Uppdragsnummer</label><input type="text" id="m_uppdrag" oninput="upd()" placeholder="–"></div>
+    <div class="row"><label>Datum</label><input type="date" id="m_datum" oninput="upd()"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">1–5. Allmän fastighetsinformation</div>
+    <div class="row row-full"><label>1. Samtliga adresser</label><textarea id="m_adress" oninput="upd()" placeholder="Ange alla adresser för byggnaden..."></textarea></div>
+    <div class="row"><label>2. Fastighetsbeteckning</label><input type="text" id="m_fbeteckn" oninput="upd()" placeholder="–"></div>
+    <div class="row"><label>4. Nybyggnadsår</label><input type="text" id="m_nybyggar" oninput="upd()" placeholder="–"></div>
+    <div class="row"><label>5. Senaste energidekl. (år)</label><input type="text" id="m_edekl_ar" oninput="upd()" placeholder="–"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">3. Byggnadstyp</div>
+    <div class="check-item"><input type="checkbox" id="bt_fri" onchange="upd()"><label for="bt_fri">Friliggande</label></div>
+    <div class="check-item"><input type="checkbox" id="bt_mel" onchange="upd()"><label for="bt_mel">Mellanliggande</label></div>
+    <div class="check-item"><input type="checkbox" id="bt_gav" onchange="upd()"><label for="bt_gav">Gavel</label></div>
+  </div>
+  <div class="card">
+    <div class="card-title">12. Skyddsstatus</div>
+    <div class="check-item"><input type="checkbox" id="sk_nej" onchange="upd()"><label for="sk_nej">Nej – ej skyddad</label></div>
+    <div class="check-item"><input type="checkbox" id="sk_kml" onchange="upd()"><label for="sk_kml">Ja, enligt 3 kap. KML</label></div>
+    <div class="check-item"><input type="checkbox" id="sk_sbm" onchange="upd()"><label for="sk_sbm">Ja, enligt SBM-förordningen</label></div>
+    <div class="check-item"><input type="checkbox" id="sk_det" onchange="upd()"><label for="sk_det">Ja, utpekad i detaljplan eller områdesbestämmelser</label></div>
+    <div class="check-item"><input type="checkbox" id="sk_ann" onchange="upd()"><label for="sk_ann">Ja, utpekad i annat dokument</label></div>
+    <div class="check-item"><input type="checkbox" id="sk_bed" onchange="upd()"><label for="sk_bed">Ja, egen bedömning</label></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Bilagor</div>
+    <div class="check-item"><input type="checkbox" id="bil_edekl" onchange="upd()"><label for="bil_edekl">Kopia av senaste energideklaration bifogad</label></div>
+    <div class="check-item"><input type="checkbox" id="bil_ritn" onchange="upd()"><label for="bil_ritn">Ritningar över fastigheten bifogade</label></div>
+  </div>
+</div>
+
+<!-- FLIK 2: AREOR -->
+<div id="page-areor" class="page">
+  <div class="card">
+    <div class="card-title">6–10. Areor och byggnadsdata</div>
+    <div class="row"><label>6. A-temp (m²)</label><input type="number" id="a_atemp" oninput="upd()" placeholder="–"></div>
+    <div class="row"><label>7. Avarmgarage (m²)</label><input type="number" id="a_garage" oninput="upd()" placeholder="0"></div>
+    <div class="row"><label>8. Källarplan uppv. till >10 °C</label><input type="number" id="a_kallar" oninput="upd()" placeholder="0"></div>
+    <div class="row"><label>9. Våningsplan ovan mark</label><input type="number" id="a_vanings" oninput="upd()" placeholder="–"></div>
+    <div class="row"><label>10. Antal trapphus</label><input type="number" id="a_trapp" oninput="upd()" placeholder="–"></div>
+  </div>
+</div>
+
+<!-- FLIK 3: ENERGI -->
+<div id="page-energi" class="page">
+  <div class="card">
+    <div class="card-title">13. Uppvärmningssystem</div>
+    <p class="note">Kryssa i ett eller flera alternativ.</p>
+    <div class="check-grid">
+      <div class="check-grid-item"><input type="checkbox" id="up1" onchange="upd()"><label for="up1">[1] Fjärrvärme</label></div>
+      <div class="check-grid-item"><input type="checkbox" id="up7" onchange="upd()"><label for="up7">[7] El – vattenburen</label></div>
+      <div class="check-grid-item"><input type="checkbox" id="up2" onchange="upd()"><label for="up2">[2] Olja (fossil)</label></div>
+      <div class="check-grid-item"><input type="checkbox" id="up8" onchange="upd()"><label for="up8">[8] El – direktverkande</label></div>
+      <div class="check-grid-item"><input type="checkbox" id="up3" onchange="upd()"><label for="up3">[3] Gas (fossil)</label></div>
+      <div class="check-grid-item"><input type="checkbox" id="up9" onchange="upd()"><label for="up9">[9] El – luftburen</label></div>
+      <div class="check-grid-item"><input type="checkbox" id="up4" onchange="upd()"><label for="up4">[4] Ved</label></div>
+      <div class="check-grid-item"><input type="checkbox" id="up10" onchange="upd()"><label for="up10">[10] Markvärmepump</label></div>
+      <div class="check-grid-item"><input type="checkbox" id="up5" onchange="upd()"><label for="up5">[5] Flis/pellets</label></div>
+      <div class="check-grid-item"><input type="checkbox" id="up11" onchange="upd()"><label for="up11">[11] VP – frånluft</label></div>
+      <div class="check-grid-item"><input type="checkbox" id="up6" onchange="upd()"><label for="up6">[6] Övrigt biobränsle</label></div>
+      <div class="check-grid-item"><input type="checkbox" id="up12" onchange="upd()"><label for="up12">[12] VP – luft/luft</label></div>
+      <div class="check-grid-item" style="grid-column:2"><input type="checkbox" id="up13" onchange="upd()"><label for="up13">[13] VP – luft/vatten</label></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">14–15. Energianvändning – senaste 12 mån</div>
+    <p class="note">Ange uppmätta värden. Om separat VV-mätning saknas, ange vattenförbrukning i m³.</p>
+    <div class="row"><label>Energi för uppvärmning</label><input type="number" id="e_uppv" oninput="upd()" placeholder="–"><span style="font-size:12px;color:#888;margin-left:4px">kWh</span></div>
+    <div class="row"><label>Energi för tappvarmvatten</label><input type="number" id="e_tvv" oninput="upd()" placeholder="–"><span style="font-size:12px;color:#888;margin-left:4px">kWh</span></div>
+    <div class="row"><label>Tappvarmvatten el [14]</label><input type="number" id="e_tvvel" oninput="upd()" placeholder="–"><span style="font-size:12px;color:#888;margin-left:4px">kWh</span></div>
+    <div class="row"><label>Vattenförbrukning (om ej sep.)</label><input type="number" id="e_vatten" oninput="upd()" placeholder="–"><span style="font-size:12px;color:#888;margin-left:4px">m³</span></div>
+    <div class="row"><label>Fjärrkyla [15]</label><input type="number" id="e_fkyla" oninput="upd()" placeholder="–"><span style="font-size:12px;color:#888;margin-left:4px">kWh</span></div>
+    <div class="row"><label>El för komfortkyla [16]</label><input type="number" id="e_komfkyla" oninput="upd()" placeholder="–"><span style="font-size:12px;color:#888;margin-left:4px">kWh</span></div>
+    <div class="row"><label>Fastighetsel [17]</label><input type="number" id="e_fastel" oninput="upd()" placeholder="–"><span style="font-size:12px;color:#888;margin-left:4px">kWh</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">16. Solcellsanläggning</div>
+    <div class="jnrow"><label>Finns solcellsanläggning?</label><div class="jnbtns"><button class="jnbtn" onclick="jn(this,'j_sol','Ja')">Ja</button><button class="jnbtn" onclick="jn(this,'j_sol','Nej')">Nej</button></div><input type="hidden" id="j_sol"></div>
+    <div class="row"><label>Installerad effekt</label><input type="number" id="sol_kwp" oninput="upd()" placeholder="–"><span style="font-size:12px;color:#888;margin-left:4px">kWp</span></div>
+    <div class="row"><label>Driftsättningsår</label><input type="text" id="sol_ar" oninput="upd()" placeholder="–"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Bilagor</div>
+    <div class="check-item"><input type="checkbox" id="bil_fakt" onchange="upd()"><label for="bil_fakt">Leverantörsfakturor för värme (senaste 12 mån) bifogade</label></div>
+  </div>
+</div>
+
+<!-- FLIK 4: VERKSAMHET -->
+<div id="page-verk" class="page">
+  <div class="card">
+    <div class="card-title">17. Verksamhetsfördelning</div>
+    <p class="note">Ange procentuell fördelning av A-temp exkl. avarmgarage. Summa ska bli 100 %.</p>
+    <div class="verk-row"><label>Bostäder (inkl. biarea, trapphus)</label><input type="number" id="v1" min="0" max="100" oninput="calcVerk()" placeholder="0"><span class="pct">%</span></div>
+    <div class="verk-row"><label>Hotell, pensionat, elevhem</label><input type="number" id="v2" min="0" max="100" oninput="calcVerk()" placeholder="0"><span class="pct">%</span></div>
+    <div class="verk-row"><label>Restaurang</label><input type="number" id="v3" min="0" max="100" oninput="calcVerk()" placeholder="0"><span class="pct">%</span></div>
+    <div class="verk-row"><label>Kontor och förvaltning</label><input type="number" id="v4" min="0" max="100" oninput="calcVerk()" placeholder="0"><span class="pct">%</span></div>
+    <div class="verk-row"><label>Butik – livsmedel</label><input type="number" id="v5" min="0" max="100" oninput="calcVerk()" placeholder="0"><span class="pct">%</span></div>
+    <div class="verk-row"><label>Butik – övrig handel</label><input type="number" id="v6" min="0" max="100" oninput="calcVerk()" placeholder="0"><span class="pct">%</span></div>
+    <div class="verk-row"><label>Köpcentrum</label><input type="number" id="v7" min="0" max="100" oninput="calcVerk()" placeholder="0"><span class="pct">%</span></div>
+    <div class="verk-row"><label>Vård, dygnet runt</label><input type="number" id="v8" min="0" max="100" oninput="calcVerk()" placeholder="0"><span class="pct">%</span></div>
+    <div class="verk-row"><label>Vård, dagtid (inkl. serviceboende)</label><input type="number" id="v9" min="0" max="100" oninput="calcVerk()" placeholder="0"><span class="pct">%</span></div>
+    <div class="verk-row"><label>Skolor (förskola–universitet)</label><input type="number" id="v10" min="0" max="100" oninput="calcVerk()" placeholder="0"><span class="pct">%</span></div>
+    <div class="verk-row"><label>Bad-, sport-, idrottsanläggningar</label><input type="number" id="v11" min="0" max="100" oninput="calcVerk()" placeholder="0"><span class="pct">%</span></div>
+    <div class="verk-row"><label>Teater, konsert, biograf m.fl.</label><input type="number" id="v12" min="0" max="100" oninput="calcVerk()" placeholder="0"><span class="pct">%</span></div>
+    <div class="verk-row"><label>Övrig verksamhet</label><input type="number" id="v13" min="0" max="100" oninput="calcVerk()" placeholder="0"><span class="pct">%</span></div>
+    <div class="sum-display">
+      <span class="sl">Summa</span>
+      <span class="sn ok" id="verk-sum">0 %</span>
+    </div>
+  </div>
+</div>
+
+<!-- FLIK 5: TEKNIK -->
+<div id="page-teknik" class="page">
+  <div class="card">
+    <div class="card-title">18. OVK-status</div>
+    <div class="jnrow"><label>Senaste OVK utförd?</label><div class="jnbtns"><button class="jnbtn" onclick="jn(this,'j_ovk_utf','Ja')">Ja</button><button class="jnbtn" onclick="jn(this,'j_ovk_utf','Nej')">Nej</button></div><input type="hidden" id="j_ovk_utf"></div>
+    <div class="jnrow"><label>OVK utan anmärkning?</label><div class="jnbtns"><button class="jnbtn" onclick="jn(this,'j_ovk_ok','Ja')">Ja</button><button class="jnbtn" onclick="jn(this,'j_ovk_ok','Nej')">Nej</button></div><input type="hidden" id="j_ovk_ok"></div>
+    <div class="check-item"><input type="checkbox" id="bil_ovk" onchange="upd()"><label for="bil_ovk">Senaste OVK-protokoll bifogat</label></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">19. Ventilationssystem</div>
+    <p class="note">Kryssa i aktuellt system.</p>
+    <div class="check-item"><input type="checkbox" id="vent_ftx" onchange="upd()"><label for="vent_ftx">FTX – från- och tilluft med värmeåtervinning</label></div>
+    <div class="check-item"><input type="checkbox" id="vent_ft" onchange="upd()"><label for="vent_ft">FT – från- och tilluft utan återvinning</label></div>
+    <div class="check-item"><input type="checkbox" id="vent_fater" onchange="upd()"><label for="vent_fater">F med återvinning (t.ex. FVP)</label></div>
+    <div class="check-item"><input type="checkbox" id="vent_f" onchange="upd()"><label for="vent_f">F – frånluft utan återvinning</label></div>
+    <div class="check-item"><input type="checkbox" id="vent_sjalv" onchange="upd()"><label for="vent_sjalv">Självdrag</label></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">20–22. Ventilationskontroll</div>
+    <div class="jnrow"><label>20. Krav på återkommande OVK?</label><div class="jnbtns"><button class="jnbtn" onclick="jn(this,'j_ovk_krav','Ja')">Ja</button><button class="jnbtn" onclick="jn(this,'j_ovk_krav','Nej')">Nej</button></div><input type="hidden" id="j_ovk_krav"></div>
+    <div class="jnrow"><label>21. Ventilationskontroll utförd?</label><div class="jnbtns"><button class="jnbtn" onclick="jn(this,'j_ovk21','Ja')">Ja</button><button class="jnbtn" onclick="jn(this,'j_ovk21','Nej')">Nej</button><button class="jnbtn" onclick="jn(this,'j_ovk21','Delvis')">Delvis</button></div><input type="hidden" id="j_ovk21"></div>
+    <div class="jnrow"><label>22. Kontroll utan anmärkning?</label><div class="jnbtns"><button class="jnbtn" onclick="jn(this,'j_ovk22','Ja')">Ja</button><button class="jnbtn" onclick="jn(this,'j_ovk22','Nej')">Nej</button></div><input type="hidden" id="j_ovk22"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">23. Radonmätning</div>
+    <div class="jnrow"><label>Radonmätning utförd?</label><div class="jnbtns"><button class="jnbtn" onclick="jn(this,'j_radon','Ja')">Ja</button><button class="jnbtn" onclick="jn(this,'j_radon','Nej')">Nej</button></div><input type="hidden" id="j_radon"></div>
+    <div class="row"><label>År för mätning</label><input type="text" id="radon_ar" oninput="upd()" placeholder="–"></div>
+    <div class="row"><label>Resultat</label><input type="number" id="radon_bq" oninput="upd()" placeholder="–"><span style="font-size:12px;color:#888;margin-left:4px">Bq/m³</span></div>
+    <div id="radon-warn" style="display:none;background:#fff0f0;border-left:3px solid #dc3545;padding:8px 10px;margin-top:8px;border-radius:0 8px 8px 0;font-size:13px;color:#721c24">
+      ⚠️ Radonhalt över riktvärdet 200 Bq/m³!
+    </div>
+  </div>
+</div>
+
+<!-- FLIK 6: ÅTGÄRDER -->
+<div id="page-atgarder" class="page">
+  <div class="card">
+    <div class="card-title">24. Genomförda åtgärder sedan föregående energideklaration</div>
+    <table class="atg-table" id="atg-table">
+      <tr><th style="width:70px">År</th><th>Beskrivning av åtgärd</th><th style="width:90px">Typ</th></tr>
+      <tr><td><input type="text" placeholder="–"></td><td><input type="text" placeholder="–"></td><td><input type="text" placeholder="–"></td></tr>
+      <tr><td><input type="text" placeholder="–"></td><td><input type="text" placeholder="–"></td><td><input type="text" placeholder="–"></td></tr>
+    </table>
+    <button class="add-row-btn" onclick="addRow('atg-table')">+ Lägg till rad</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">25. Större ombyggnationer eller ändringar</div>
+    <table class="atg-table" id="ombygg-table">
+      <tr><th style="width:70px">År</th><th>Beskrivning</th><th style="width:90px">Typ</th></tr>
+      <tr><td><input type="text" placeholder="–"></td><td><input type="text" placeholder="–"></td><td><input type="text" placeholder="–"></td></tr>
+      <tr><td><input type="text" placeholder="–"></td><td><input type="text" placeholder="–"></td><td><input type="text" placeholder="–"></td></tr>
+    </table>
+    <button class="add-row-btn" onclick="addRow('ombygg-table')">+ Lägg till rad</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Kontaktuppgifter</div>
+    <div class="row"><label>Namn (kontaktperson)</label><input type="text" id="kont_namn" oninput="upd()" placeholder="–"></div>
+    <div class="row"><label>Roll / befattning</label><input type="text" id="kont_roll" oninput="upd()" placeholder="–"></div>
+    <div class="row"><label>Telefon</label><input type="text" id="kont_tel" oninput="upd()" placeholder="–"></div>
+    <div class="row"><label>E-post</label><input type="text" id="kont_epost" oninput="upd()" placeholder="–"></div>
+  </div>
+
+  <button class="send-btn" onclick="skicka()">📧 Skicka sammanställning via e-post</button>
+</div>
+
+<div class="bottom-bar">
+  <div class="stat"><div class="stat-n" id="s_ifyllt">0</div><div class="stat-l">fält ifyllda</div></div>
+  <div class="stat"><div class="stat-n" id="s_check">0</div><div class="stat-l">ikryssade</div></div>
+  <div class="stat"><div class="stat-n" id="s_jn">0</div><div class="stat-l">ja/nej</div></div>
+  <div class="stat"><div class="stat-n" id="s_pct">0%</div><div class="stat-l">klart</div></div>
+</div>
+
+<script>
+function showPage(name,btn){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function jn(btn,id,val){
+  var row=btn.closest('.jnrow');
+  row.querySelectorAll('.jnbtn').forEach(function(b){b.className='jnbtn';});
+  btn.classList.add(val==='Ja'?'ja':'nej');
+  document.getElementById(id).value=val;
+  upd();
+  if(id==='j_radon') checkRadon();
+}
+
+function checkRadon(){
+  var bq=parseFloat(document.getElementById('radon_bq').value);
+  document.getElementById('radon-warn').style.display=(!isNaN(bq)&&bq>200)?'block':'none';
+}
+
+function calcVerk(){
+  var ids=['v1','v2','v3','v4','v5','v6','v7','v8','v9','v10','v11','v12','v13'];
+  var sum=0;
+  ids.forEach(function(id){sum+=parseFloat(document.getElementById(id).value)||0;});
+  sum=Math.round(sum);
+  var el=document.getElementById('verk-sum');
+  el.textContent=sum+' %';
+  el.className='sn '+(sum===100?'ok':'bad');
+  upd();
+}
+
+function addRow(tableId){
+  var table=document.getElementById(tableId);
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td><input type="text" placeholder="–"></td><td><input type="text" placeholder="–"></td><td><input type="text" placeholder="–"></td>';
+  table.appendChild(tr);
+}
+
+function upd(){
+  var textInputs=document.querySelectorAll('input[type=text],input[type=number],input[type=date],textarea');
+  var filled=0;
+  textInputs.forEach(function(i){if(i.value.trim())filled++;});
+  var cbs=document.querySelectorAll('input[type=checkbox]');
+  var checked=0;
+  cbs.forEach(function(c){if(c.checked)checked++;});
+  var jns=document.querySelectorAll('input[type=hidden]');
+  var answered=0;
+  jns.forEach(function(j){if(j.value)answered++;});
+  var total=textInputs.length+cbs.length+jns.length;
+  var done=filled+checked+answered;
+  var pct=total>0?Math.round(done/total*100):0;
+  document.getElementById('s_ifyllt').textContent=filled;
+  document.getElementById('s_check').textContent=checked;
+  document.getElementById('s_jn').textContent=answered;
+  document.getElementById('s_pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=done+' av '+total+' punkter klara';
+  checkRadon();
+}
+
+function g(id){var el=document.getElementById(id);return el?el.value.trim():'';}
+
+function skicka(){
+  var rapport='UNDERLAG – ENERGIDEKLARATION OCH BYGGNADSDATA\n';
+  rapport+='Bravida Sverige AB\n';
+  rapport+='================================================\n\n';
+  rapport+='PROJEKTINFORMATION\n';
+  rapport+='Handläggare: '+g('m_hand')+'\n';
+  rapport+='Uppdragsnummer: '+g('m_uppdrag')+'\n';
+  rapport+='Datum: '+g('m_datum')+'\n\n';
+  rapport+='1. ALLMÄN FASTIGHETSINFORMATION\n';
+  rapport+='Adresser: '+g('m_adress')+'\n';
+  rapport+='Fastighetsbeteckning: '+g('m_fbeteckn')+'\n';
+  var bt=[];
+  if(document.getElementById('bt_fri').checked)bt.push('Friliggande');
+  if(document.getElementById('bt_mel').checked)bt.push('Mellanliggande');
+  if(document.getElementById('bt_gav').checked)bt.push('Gavel');
+  rapport+='Byggnadstyp: '+bt.join(', ')+'\n';
+  rapport+='Nybyggnadsår: '+g('m_nybyggar')+'\n';
+  rapport+='Senaste energidekl.: '+g('m_edekl_ar')+'\n\n';
+  rapport+='2. AREOR OCH BYGGNADSDATA\n';
+  rapport+='A-temp: '+g('a_atemp')+' m²\n';
+  rapport+='Avarmgarage: '+g('a_garage')+' m²\n';
+  rapport+='Källarplan uppv. >10°C: '+g('a_kallar')+'\n';
+  rapport+='Våningsplan ovan mark: '+g('a_vanings')+'\n';
+  rapport+='Antal trapphus: '+g('a_trapp')+'\n\n';
+  rapport+='3. UPPVÄRMNINGSSYSTEM\n';
+  var ups=['[1] Fjärrvärme','[2] Olja','[3] Gas','[4] Ved','[5] Flis/pellets','[6] Övrigt biobränsle','[7] El-vattenburen','[8] El-direktverkande','[9] El-luftburen','[10] Markvärmepump','[11] VP-frånluft','[12] VP-luft/luft','[13] VP-luft/vatten'];
+  var ids=['up1','up2','up3','up4','up5','up6','up7','up8','up9','up10','up11','up12','up13'];
+  var valde=[];
+  ids.forEach(function(id,i){if(document.getElementById(id).checked)valde.push(ups[i]);});
+  rapport+='System: '+valde.join(', ')+'\n\n';
+  rapport+='4. ENERGIANVÄNDNING (senaste 12 mån)\n';
+  rapport+='Energi uppvärmning: '+g('e_uppv')+' kWh\n';
+  rapport+='Energi tappvarmvatten: '+g('e_tvv')+' kWh\n';
+  rapport+='Tappvarmvatten el [14]: '+g('e_tvvel')+' kWh\n';
+  rapport+='Vattenförbrukning: '+g('e_vatten')+' m³\n';
+  rapport+='Fjärrkyla [15]: '+g('e_fkyla')+' kWh\n';
+  rapport+='El för komfortkyla [16]: '+g('e_komfkyla')+' kWh\n';
+  rapport+='Fastighetsel [17]: '+g('e_fastel')+' kWh\n\n';
+  rapport+='5. SOLCELLER\n';
+  rapport+='Finns: '+g('j_sol')+'\n';
+  rapport+='Effekt: '+g('sol_kwp')+' kWp\n';
+  rapport+='Driftsättningsår: '+g('sol_ar')+'\n\n';
+  rapport+='6. VERKSAMHETSFÖRDELNING\n';
+  var verkLabels=['Bostäder','Hotell/pensionat','Restaurang','Kontor','Butik-livsmedel','Butik-handel','Köpcentrum','Vård dygnet runt','Vård dagtid','Skolor','Bad/sport','Teater/konsert','Övrig'];
+  for(var i=1;i<=13;i++){var v=g('v'+i);if(v)rapport+=verkLabels[i-1]+': '+v+' %\n';}
+  rapport+='\n';
+  rapport+='7. TEKNISKA UPPGIFTER\n';
+  rapport+='OVK utförd: '+g('j_ovk_utf')+'\n';
+  rapport+='OVK utan anmärkning: '+g('j_ovk_ok')+'\n';
+  rapport+='Krav på återkommande OVK: '+g('j_ovk_krav')+'\n';
+  rapport+='Ventilationskontroll utförd: '+g('j_ovk21')+'\n';
+  var vents=[];
+  if(document.getElementById('vent_ftx').checked)vents.push('FTX');
+  if(document.getElementById('vent_ft').checked)vents.push('FT');
+  if(document.getElementById('vent_fater').checked)vents.push('F med återvinning');
+  if(document.getElementById('vent_f').checked)vents.push('F');
+  if(document.getElementById('vent_sjalv').checked)vents.push('Självdrag');
+  rapport+='Ventilationssystem: '+vents.join(', ')+'\n';
+  rapport+='Radon utförd: '+g('j_radon')+'\n';
+  rapport+='Radon år: '+g('radon_ar')+'\n';
+  rapport+='Radon resultat: '+g('radon_bq')+' Bq/m³\n\n';
+  rapport+='8. KONTAKTUPPGIFTER\n';
+  rapport+='Namn: '+g('kont_namn')+'\n';
+  rapport+='Roll: '+g('kont_roll')+'\n';
+  rapport+='Telefon: '+g('kont_tel')+'\n';
+  rapport+='E-post: '+g('kont_epost')+'\n';
+  var adress=g('m_adress').split('\n')[0]||'Fastighet';
+  var datum=g('m_datum')||new Date().toISOString().split('T')[0];
+  var subject='Underlag Energideklaration – '+adress+' – '+datum;
+  window.location.href='mailto:?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(rapport);
+}
+
+upd();
+</script>
+</body>
+</html>
